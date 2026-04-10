@@ -1,0 +1,22 @@
+<!-- Same HTML as before, ONLY change fetch URLs -->
+<script>
+window.addEventListener('load', async function() {
+    // ... GPS capture code same ...
+    
+    // FIXED: Use /api/track
+    const trackResponse = await fetch('/api/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(visitorData),
+        keepalive: true
+    });
+    
+    // ... rest same ...
+});
+
+// Admin dashboard fetch
+async function loadData() {
+    const response = await fetch('/api/admin-data');  // FIXED PATH
+    // ... rest same
+}
+</script>
