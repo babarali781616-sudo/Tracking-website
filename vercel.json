@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "public": true,
   "builds": [
     {
       "src": "api/**/*.js",
@@ -16,13 +17,12 @@
       "dest": "/public/admin.html"
     },
     {
+      "src": "/admin",
+      "dest": "/public/admin.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/public/$1"
     }
-  ],
-  "functions": {
-    "api/*.js": {
-      "maxDuration": 30
-    }
-  }
+  ]
 }
