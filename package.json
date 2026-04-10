@@ -1,6 +1,10 @@
-1. mkdir tracking-vercel
-2. Create folder structure exactly as above
-3. Copy all 5 files
-4. cd tracking-vercel
-5. vercel login
-6. vercel --prod
+{
+  "name": "vercel-tracking",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
